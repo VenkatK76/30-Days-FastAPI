@@ -1,7 +1,8 @@
 # Day - 2
 
 from fastapi import FastAPI, HTTPException
-from typing import Optional
+from typing import Optional, List
+from pydantic import BaseModel
 
 # Create the FastAPI instance
 app = FastAPI()
@@ -20,7 +21,6 @@ habits = [
     {"id": 1, "name": "Drink Water", "frequency": 3, "completed": True, "notes": []},
     {"id": 2, "name": "Read Book", "frequency": 1, "completed": False, "notes": []},
     {"id": 3, "name": "Exercise", "frequency": 5, "completed": False, "notes": []},
-
 ]
 
 @app.get("/habits/{habit_id}")
@@ -68,3 +68,22 @@ def get_all_habits(
         filtered = [h for h in filtered if h["frequency"] <= max_frequency]
 
     return { "count": len(filtered), "habits": filtered}
+
+# Day - 5
+
+class Habit(BaseModel):
+    name: str
+    frequency: int
+    completed: bool = False
+    notes: list[str] = []
+
+class HabitResponse(BaseModel):
+    message: str
+    habit: Habit
+
+@app.post("/habits", response_model=HabitResponse)
+def create_habit(habit: Habit):
+    new_habit = habit.dict()
+    new_habit["id"] = len(habits) + 1
+    habits.append(new_habit)
+    return {"message": "Habit added successfully!", "habit": new_habit}
