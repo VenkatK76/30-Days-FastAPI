@@ -87,3 +87,33 @@ def create_habit(habit: Habit):
     new_habit["id"] = len(habits) + 1
     habits.append(new_habit)
     return {"message": "Habit added successfully!", "habit": new_habit}
+
+
+# Day - 6
+
+class HabitUpdate(BaseModel):
+    name: Optional[str] = None
+    frequency: Optional[int] = None
+    completed: Optional[bool] = None
+    notes: Optional[list[str]] = None
+
+
+@app.patch("/habits/{habit_id}", response_model=HabitResponse)
+def update_habit(habit_id: int, habit_update: HabitUpdate):
+    for habit in habits:
+        if habit["id"] == habit_id:
+            update_data = habit_update.dict(exclude_unset=True)
+            habit.update(update_data)
+            return {"message": "Habit Updated Successfully", "habit": habit}
+    raise HTTPException(status_code=404, detail="Habit not found")
+
+@app.put("/habits/{habit_id}", response_model= HabitResponse)
+def replace_habit(habit_id: int, updated_habit: Habit):
+    for index, habit in enumerate(habits):
+        if habit["id"] == habit_id:
+            updated_habit_dict = updated_habit.dict().copy()
+            updated_habit_dict["id"] = habit_id
+            habits[index] = updated_habit_dict
+            return {"message": "Habit replaced Successfully", "habit": updated_habit_dict} 
+    raise HTTPException(status_code=404, detail="Habit not found")
+       
