@@ -1,6 +1,6 @@
 # Day - 2
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -117,3 +117,13 @@ def replace_habit(habit_id: int, updated_habit: Habit):
             return {"message": "Habit replaced Successfully", "habit": updated_habit_dict} 
     raise HTTPException(status_code=404, detail="Habit not found")
        
+
+# Day - 7
+
+@app.delete("/habits/{habit_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_habit(habit_id: int):
+    for index, habit in enumerate(habits):
+        if habit["id"] == habit_id:
+            habits.pop(index)
+            return
+    return HTTPException(status_code=404, detail="Habit not found")
